@@ -1,4 +1,4 @@
-# st8_management
+# attendance-app
 
 A new Flutter project.
 
