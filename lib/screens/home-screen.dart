@@ -11,8 +11,8 @@ class Page1 extends StatefulWidget {
 }
 
 class _Page1State extends State<Page1> {
-  late String _name;
-  late String _city;
+  TextEditingController _name = TextEditingController();
+  TextEditingController _city = TextEditingController();
 
   List<User> userList = [];
 
@@ -28,7 +28,7 @@ class _Page1State extends State<Page1> {
     });
   }
 
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final _formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +55,14 @@ class _Page1State extends State<Page1> {
               const SizedBox(height: 16),
               FormInput(
                   labelText: 'Name',
-                  onFieldSubmitted: (String? value) {
-                    _name = value!;
+                  onSaved: (String? value) {
+                    _name = value! as TextEditingController;
                   }),
               const SizedBox(height: 16),
               FormInput(
                   labelText: 'City',
-                  onFieldSubmitted: (String? value) {
-                    _city = value!;
+                  onSaved: (String? value) {
+                    _city = value! as TextEditingController;
                   }),
               const SizedBox(height: 16),
               Row(
@@ -71,12 +71,13 @@ class _Page1State extends State<Page1> {
                   Button(
                       text: 'Add',
                       onPressed: () {
-                        if (!_formkey.currentState!.validate()) return;
-                        _formkey.currentState!.save();
+                        if (!_formkey.currentState!.validate()) {
+                          return _formkey.currentState!.save();
+                        }
 
                         addUser(User(
-                          _name,
-                          _city,
+                          city: _name.text,
+                          name: _city.text,
                         ));
                       }),
                   const SizedBox(
