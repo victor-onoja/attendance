@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:st8_management/model/user.dart';
 
-class UserList extends StatefulWidget {
+class UserList extends StatelessWidget {
   final List<User> users;
   final Function(User) onDelete;
 
-  UserList(this.users, this.onDelete);
+  const UserList(this.users, this.onDelete, {Key? key}) : super(key: key);
 
-  @override
-  State<UserList> createState() => _UserListState();
-}
-
-class _UserListState extends State<UserList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -27,23 +22,23 @@ class _UserListState extends State<UserList> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Name: ${widget.users[index].name}',
+                    'Name: ${users[index].name}',
                     style: const TextStyle(fontSize: 18),
                   ),
                   Text(
-                    'City: ${widget.users[index].city}',
+                    'City: ${users[index].city}',
                     style: const TextStyle(fontSize: 18),
                   )
                 ],
               ),
               IconButton(
-                  onPressed: () => widget.onDelete(widget.users[index]),
+                  onPressed: () => onDelete(users[index]),
                   icon: const Icon(Icons.delete))
             ],
           ),
         ),
       ),
-      itemCount: widget.users.length,
+      itemCount: users.length,
     );
   }
 }

@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
-class FormInput extends StatefulWidget {
+class FormInput extends StatelessWidget {
   final String labelText;
-  final Function onSaved;
+  final String? Function(String?)? validator;
+  final TextEditingController? controller;
+  // final Function onSaved;
 
-  FormInput({
-    required this.labelText,
-    required this.onSaved,
-  });
+  const FormInput(
+      {Key? key,
+      required this.labelText,
+      required this.validator,
+      this.controller
+      // required this.onSaved,
+      })
+      : super(key: key);
 
-  @override
-  State<FormInput> createState() => _FormInputState();
-}
-
-class _FormInputState extends State<FormInput> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -25,18 +26,15 @@ class _FormInputState extends State<FormInput> {
             borderRadius: BorderRadius.circular(16)),
         fillColor: const Color(0xffBE5A38),
         filled: true,
-        labelText: widget.labelText,
+        labelText: labelText,
         labelStyle: const TextStyle(color: Color(0xffBDB4BF)),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         floatingLabelBehavior: FloatingLabelBehavior.never,
       ),
-      validator: (value) {
-        if (value!.isEmpty) {
-          return '${widget.labelText} is required';
-        }
-        return null;
-      },
-      onSaved: widget.onSaved as void Function(String?)?,
+      validator: validator,
+      controller: controller,
+      // initialValue: null,
+      // onSaved: onSaved as void Function(String?)?,
     );
   }
 }

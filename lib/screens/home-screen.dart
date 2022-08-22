@@ -6,13 +6,24 @@ import 'package:st8_management/widget/input.dart';
 import 'package:st8_management/widget/list.dart';
 
 class Page1 extends StatefulWidget {
+  const Page1({Key? key}) : super(key: key);
+
   @override
   State<Page1> createState() => _Page1State();
 }
 
 class _Page1State extends State<Page1> {
-  TextEditingController _name = TextEditingController();
-  TextEditingController _city = TextEditingController();
+// String? _name;
+// String? _city;
+
+  final nameController = TextEditingController();
+  final cityController = TextEditingController();
+
+  onDispose() {
+    nameController.clear();
+    cityController.clear();
+    super.dispose();
+  }
 
   List<User> userList = [];
 
@@ -28,7 +39,19 @@ class _Page1State extends State<Page1> {
     });
   }
 
-  final _formkey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+
+  void validateAndSave() {
+    final FormState? form = _formkey.currentState;
+    if (form!.validate()) {
+      // print('Form is valid');
+      addUser(User(nameController.text, cityController.text));
+      nameController.clear();
+      cityController.clear();
+    } else {
+      print('Form is invalid');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +66,9 @@ class _Page1State extends State<Page1> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
-        key: _formkey,
+        // key: _formkey,
         child: Form(
+          key: _formkey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -54,32 +78,43 @@ class _Page1State extends State<Page1> {
               ),
               const SizedBox(height: 16),
               FormInput(
-                  labelText: 'Name',
-                  onSaved: (String? value) {
-                    _name = value! as TextEditingController;
-                  }),
+                labelText: 'Name',
+                // onSaved:
+                // (String? value) {
+                // _name = value;
+                // }
+                validator: (value) =>
+                    value!.isEmpty ? 'please put in your details' : null,
+                controller: nameController,
+              ),
               const SizedBox(height: 16),
               FormInput(
-                  labelText: 'City',
-                  onSaved: (String? value) {
-                    _city = value! as TextEditingController;
-                  }),
+                labelText: 'City',
+                // onSaved: (String? value) {
+                //   _city = value;
+                // }
+                controller: cityController,
+                validator: (value) =>
+                    value!.isEmpty ? 'please put in your details' : null,
+              ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Button(
-                      text: 'Add',
-                      onPressed: () {
-                        if (!_formkey.currentState!.validate()) {
-                          return _formkey.currentState!.save();
-                        }
+                    text: 'Add',
+                    onPressed: validateAndSave,
+                    // onPressed: () {
+                    //   if (_formkey.currentState!.validate()) {
+                    //     return _formkey.currentState!.save();
+                    //   }
 
-                        addUser(User(
-                          city: _name.text,
-                          name: _city.text,
-                        ));
-                      }),
+                    //   addUser(User(
+                    //     city: _name.text,
+                    //     name: _city.text,
+                    //   ));
+                    // }
+                  ),
                   const SizedBox(
                     width: 8,
                   ),
