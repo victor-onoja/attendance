@@ -33,9 +33,13 @@ class _Page1State extends State<Page1> {
     });
   }
 
+  // void _removeTodoItem(int index) {
+  //   setState(() => userList.removeAt(index));
+  // }
+
   deleteUser(User user) {
     setState(() {
-      userList.removeWhere((_user) => _user.name == _user.name);
+      userList.removeWhere((element) => element.name == user.name);
     });
   }
 
