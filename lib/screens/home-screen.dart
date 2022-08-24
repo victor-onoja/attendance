@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:st8_management/controller/main_list.dart';
+import 'package:st8_management/controller/providers.dart';
 import 'package:st8_management/model/user.dart';
+import 'package:st8_management/screens/counter.dart';
 import 'package:st8_management/screens/list_screen.dart';
 import 'package:st8_management/widget/button.dart';
 import 'package:st8_management/widget/input.dart';
 import 'package:st8_management/widget/list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Page1 extends StatefulWidget {
+class Page1 extends ConsumerStatefulWidget {
   const Page1({Key? key}) : super(key: key);
 
   @override
-  State<Page1> createState() => _Page1State();
+  ConsumerState<Page1> createState() => _Page1State();
 }
 
-class _Page1State extends State<Page1> {
-// String? _name;
-// String? _city;
-
+class _Page1State extends ConsumerState<Page1> {
   final nameController = TextEditingController();
   final cityController = TextEditingController();
 
@@ -27,35 +28,7 @@ class _Page1State extends State<Page1> {
 
   List<User> userList = [];
 
-  addUser(User user) {
-    setState(() {
-      userList.add(user);
-    });
-  }
-
-  // void _removeTodoItem(int index) {
-  //   setState(() => userList.removeAt(index));
-  // }
-
-  deleteUser(User user) {
-    setState(() {
-      userList.removeWhere((element) => element.name == user.name);
-    });
-  }
-
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-
-  void validateAndSave() {
-    final FormState? form = _formkey.currentState;
-    if (form!.validate()) {
-      // print('Form is valid');
-      addUser(User(nameController.text, cityController.text));
-      nameController.clear();
-      cityController.clear();
-    } else {
-      print('Form is invalid');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,30 +36,46 @@ class _Page1State extends State<Page1> {
       backgroundColor: const Color(0xff36382E),
       appBar: AppBar(
         backgroundColor: const Color(0xff92140C),
-        title: const Text(
-          'Test Riverpod',
-          style: TextStyle(color: Color(0xffE6E49F)),
+        title: Consumer(
+          builder: (context, ref, child) {
+            AsyncValue<String> name = ref.watch(profileNameProvider);
+            return name.when(
+                data: (name) => Text(
+                      name,
+                      style: const TextStyle(color: Color(0xffE6E49F)),
+                    ),
+                error: (e, stackTrace) => const Text('Error'),
+                loading: () => const Text('loading...'));
+          },
+        ),
+        leading: Center(
+          child: Consumer(builder: (context, ref, _) {
+            AsyncValue<String> time = ref.watch(sessionTimeProvider('sec'));
+            return time.when(
+                data: (time) => Text(
+                      time,
+                      style: const TextStyle(
+                          fontSize: 14, color: Color(0xffE6E49F)),
+                    ),
+                error: (e, stackTrace) => const Text('error'),
+                loading: () => const Text('?'));
+          }),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
-        // key: _formkey,
         child: Form(
           key: _formkey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Text(
-                'Header',
-                style: TextStyle(fontSize: 30, color: Color(0xffBDB4BF)),
+              Text(
+                ref.read(titleProvider),
+                style: const TextStyle(fontSize: 30, color: Color(0xffBDB4BF)),
               ),
               const SizedBox(height: 16),
               FormInput(
                 labelText: 'Name',
-                // onSaved:
-                // (String? value) {
-                // _name = value;
-                // }
                 validator: (value) =>
                     value!.isEmpty ? 'please put in your details' : null,
                 controller: nameController,
@@ -94,9 +83,6 @@ class _Page1State extends State<Page1> {
               const SizedBox(height: 16),
               FormInput(
                 labelText: 'City',
-                // onSaved: (String? value) {
-                //   _city = value;
-                // }
                 controller: cityController,
                 validator: (value) =>
                     value!.isEmpty ? 'please put in your details' : null,
@@ -105,19 +91,22 @@ class _Page1State extends State<Page1> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Button(
-                    text: 'Add',
-                    onPressed: validateAndSave,
-                    // onPressed: () {
-                    //   if (_formkey.currentState!.validate()) {
-                    //     return _formkey.currentState!.save();
-                    //   }
-
-                    //   addUser(User(
-                    //     city: _name.text,
-                    //     name: _city.text,
-                    //   ));
-                    // }
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final UserListController controller =
+                          ref.read(mainListProvider.notifier);
+                      return Button(
+                          text: 'Add',
+                          onPressed: () {
+                            final FormState? form = _formkey.currentState;
+                            if (form!.validate()) {
+                              controller.addUser(User(
+                                  nameController.text, cityController.text));
+                              nameController.clear();
+                              cityController.clear();
+                            }
+                          });
+                    },
                   ),
                   const SizedBox(
                     width: 8,
@@ -128,8 +117,7 @@ class _Page1State extends State<Page1> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ListScreen(userList, deleteUser),
+                              builder: (context) => const ListScreen(),
                             ));
                       })
                 ],
@@ -137,7 +125,14 @@ class _Page1State extends State<Page1> {
               const SizedBox(
                 height: 20,
               ),
-              UserList(userList, deleteUser)
+              // const Spacer(),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const Counter()));
+                  },
+                  child: const Text('Go to counter Page')),
+              const UserList()
             ],
           ),
         ),

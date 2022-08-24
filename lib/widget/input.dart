@@ -4,15 +4,12 @@ class FormInput extends StatelessWidget {
   final String labelText;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
-  // final Function onSaved;
 
   const FormInput(
       {Key? key,
       required this.labelText,
       required this.validator,
-      this.controller
-      // required this.onSaved,
-      })
+      this.controller})
       : super(key: key);
 
   @override
@@ -33,8 +30,6 @@ class FormInput extends StatelessWidget {
       ),
       validator: validator,
       controller: controller,
-      // initialValue: null,
-      // onSaved: onSaved as void Function(String?)?,
     );
   }
 }
